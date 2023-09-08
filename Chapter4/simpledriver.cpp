@@ -36,13 +36,13 @@ int main(int argc, char **argv) {
 
   std::shared_ptr<TargetOptions> PTO(new TargetOptions());
   PTO->Triple = sys::getDefaultTargetTriple();
-  TargetInfo *PTI = TargetInfo::CreateTargetInfo(CI.getDiagnostics(), 
-                                                 PTO);
+
+  TargetInfo *PTI = TargetInfo::CreateTargetInfo(CI.getDiagnostics(), PTO.get());
   CI.setTarget(PTI);
   
   CI.createFileManager();
   CI.createSourceManager(CI.getFileManager());
-  CI.createPreprocessor(TU_Complete);
+  CI.createPreprocessor();
   CI.getPreprocessorOpts().UsePredefines = false;
   ASTConsumer *astConsumer = CreateASTPrinter(NULL, "");
   CI.setASTConsumer(astConsumer);
