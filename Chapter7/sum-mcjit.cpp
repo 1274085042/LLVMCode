@@ -28,19 +28,20 @@ int main() {
   }
 
   LLVMContext Context;
-  ErrorOr<std::unique_ptr<MemoryBuffer>> Buffer = MemoryBuffer::getFile("./sum.bc");
-  if (Buffer.getError()) {
-    errs() << "sum.bc not found\n";
-    return -1;
-  }
+  OwningPtr<MemoryBuffer> IRObjectBuffer;
+  error_code ec = MemoryBuffer::getFile("./sum.bc", IRObjectBuffer);
+//   if (Buffer.getError()) {
+//     errs() << "sum.bc not found\n";
+//     return -1;
+//   }
 
-  ErrorOr<Module *> M = parseBitcodeFile(Buffer->get(), Context);
-  if (std::error_code ec = M.getError()) {
-    errs() << "Error reading bitcode: " << ec.message() << "\n";
-    return -1;
-  }
+  ErrorOr<Module *> M = ParseBitcodeFile(IRObjectBuffer.take(), Context);
+//   if (std::error_code ec = M.getError()) {
+//     errs() << "Error reading bitcode: " << ec.message() << "\n";
+//     return -1;
+//   }
 
-  std::unique_ptr<ExecutionEngine> EE;
+  OwningPtr<ExecutionEngine> EE;
   if (UseMCJIT)
     EE.reset(EngineBuilder(*M).setUseMCJIT(true).create());
   else
